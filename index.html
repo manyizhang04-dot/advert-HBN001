@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>HBN功效研究所 | 慢一点 看见真功效</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation; /* 优化触控响应 */
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #fef9e8 0%, #fff3e0 100%);
+            font-family: 'Segoe UI', 'Poppins', 'Quicksand', system-ui, -apple-system, 'Comic Neue', 'Chalkboard SE', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        /* 游戏主容器 - 移动优先柔滑 */
+        .game-container {
+            max-width: 600px;
+            width: 100%;
+            background: #FFF9F0;
+            border-radius: 56px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2), 0 0 0 8px #ffe5bf, 0 0 0 12px #d9b48b;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* Q版装饰条 */
+        .brand-header {
+            background: #5B3A1E;
+            padding: 12px 16px;
+            text-align: center;
+            color: #FFE6B3;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        .brand-header span {
+            background: #FFD966;
+            color: #4E2E1A;
+            padding: 4px 12px;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .logo-icon {
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        /* 游戏主体 */
+        .game-main {
+            padding: 18px 16px 24px;
+        }
+
+        /* 血条/进度条通用样式 */
+        .stats-panel {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+            background: #FFF0DB;
+            padding: 10px 16px;
+            border-radius: 48px;
+            border: 2px solid #FADB9F;
+        }
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #A5662F;
+            letter-spacing: 1px;
+        }
+        .stat-bar-bg {
+            background: #EEDDB0;
+            border-radius: 30px;
+            height: 14px;
+            margin-top: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-bar-fill {
+            background: #FF9F4A;
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            transition: width 0.25s ease;
+        }
+        .stat-bar-fill.player {
+            background: #58B368;
+        }
+        .stat-bar-fill.enemy {
+            background: #E76F51;
+        }
+
+        /* 怪物大本营 */
+        .enemy-area {
+            background: #FFF1E0;
+            border-radius: 52px;
+            padding: 18px 12px;
+            text-align: center;
+            margin-bottom: 22px;
+            box-shadow: inset 0 0 0 3px white, 0 8px 18px rgba(0,0,0,0.05);
+        }
+        .monster-avatar {
+            font-size: 4.5rem;
+            filter: drop-shadow(6px 10px 0 rgba(0,0,0,0.1));
+            transition: transform 0.2s ease;
+        }
+        .monster-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: #FFE2B5;
+            display: inline-block;
+            padding: 4px 18px;
+            border-radius: 40px;
+            margin: 8px 0 6px;
+            color: #5E3A22;
+        }
+        .monster-desc {
+            font-size: 0.8rem;
+            background: #FDE5C2;
+            padding: 8px 14px;
+            border-radius: 28px;
+            color: #784A2C;
+            font-weight: 500;
+        }
+        .level-badge {
+            background: #E0AA7A;
+            display: inline-block;
+            padding: 5px 16px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.7rem;
+            margin-bottom: 12px;
+        }
+
+        /* 技能/产品选择区 - 手机触摸优化 */
+        .action-area {
+            background: #FCEBD9;
+            border-radius: 48px;
+            padding: 18px 12px;
+            margin: 8px 0 14px;
+            border: 2px solid #FFD8A5;
+        }
+        .action-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #B96F30;
+            font-size: 0.9rem;
+        }
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+        }
+        /* 手机触摸卡片 - 增大点击区域 */
+        .skill-card {
+            background: white;
+            flex: 1 1 140px;  /* 灵活布局 最小140px */
+            min-width: 130px;
+            border-radius: 42px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.08s linear;
+            box-shadow: 0 5px 0 #D9B48B;
+            border: 1px solid #FFD29B;
+            touch-action: manipulation;
+        }
+        .skill-card:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #D9B48B;
+        }
+        .skill-icon {
+            font-size: 2.2rem;
+            display: block;
+        }
+        .skill-name {
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin: 8px 0 4px;
+            color: #4C351C;
+        }
+        .skill-effect {
+            font-size: 0.7rem;
+            color: #F2783B;
+            line-height: 1.3;
+        }
+        .feedback {
+            background: #FFF2E3;
+            border-radius: 36px;
+            padding: 14px 12px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #9B5E2C;
+            transition: 0.1s;
+            border-left: 6px solid #F7B05E;
+            min-height: 72px;
+        }
+
+        /* 按钮区域 手机友好 */
+        .restart-btn {
+            background: #D9A066;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 60px;
+            font-weight: bold;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 12px;
+            width: 100%;
+            transition: 0.08s;
+            box-shadow: 0 5px 0 #8B5A2B;
+            touch-action: manipulation;
+            min-height: 52px;
+        }
+        .restart-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #8B5A2B;
+        }
+
+        /* 开始&结束界面 */
+        .screen-overlay {
+            background: #FFF6EC;
+            padding: 28px 18px;
+            text-align: center;
+            border-radius: 48px;
+            margin-bottom: 8px;
+        }
+        .start-btn {
+            background: #F5A65B;
+            border: none;
+            font-size: 1.4rem;
+            font-weight: bold;
+            padding: 14px 28px;
+            border-radius: 60px;
+            color: white;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #A55622;
+            touch-action: manipulation;
+            min-width: 200px;
+        }
+        .start-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #A55622;
+        }
+        .hidden {
+            display: none;
+        }
+        .title-big {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #C27137;
+        }
+        .quote {
+            font-style: italic;
+            background: #FFF0DA;
+            border-radius: 30px;
+            padding: 14px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+        }
+        footer {
+            font-size: 0.6rem;
+            text-align: center;
+            padding: 14px 10px;
+            background: #FDEBD2;
+            color: #AB7A4B;
+            line-height: 1.4;
+        }
+        button {
+            font-family: inherit;
+        }
+
+        /* 手机窄屏进一步优化 */
+        @media (max-width: 550px) {
+            .game-container {
+                border-radius: 48px;
+            }
+            .game-main {
+                padding: 14px 12px 20px;
+            }
+            .stats-panel {
+                gap: 12px;
+                padding: 8px 12px;
+            }
+            .monster-avatar {
+                font-size: 3.8rem;
+            }
+            .monster-name {
+                font-size: 1.2rem;
+                padding: 3px 14px;
+            }
+            .skill-card {
+                min-width: 115px;
+                padding: 12px 6px;
+            }
+            .skill-name {
+                font-size: 0.8rem;
+            }
+            .action-title {
+                font-size: 0.85rem;
+            }
+            .feedback {
+                font-size: 0.75rem;
+                padding: 12px;
+            }
+            .restart-btn, .start-btn {
+                font-size: 0.95rem;
+                padding: 12px 16px;
+            }
+            .brand-header {
+                font-size: 0.75rem;
+                padding: 10px 12px;
+            }
+        }
+
+        /* 超小设备 (折叠屏) */
+        @media (max-width: 400px) {
+            .skill-card {
+                flex-basis: 100%;
+                min-width: auto;
+            }
+            .cards {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .monster-desc {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameRoot">
+    <div class="brand-header">
+        <div class="logo-icon">🧪✨ HBN · 真功效实验室</div>
+        <span>「慢一点，远一点」</span>
+        <span>看见 · 真实改变</span>
+    </div>
+    <div class="game-main">
+        <!-- 开始界面 -->
+        <div id="startScreen" class="screen-overlay">
+            <div class="title-big">🍃 HBN功效研究所</div>
+            <div class="monster-avatar" style="font-size: 4rem;">🧴🔬🧸</div>
+            <p style="font-weight: bold; font-size: 1rem;">欢迎来到「慢科研」特训营！</p>
+            <div class="quote">
+                🌟 “慢一点，方能走得更远” 🌟<br>
+                用真实功效击退肌肤烦恼！<br>
+                六年来超7000人次人体实测 · 50+ SCI论文<br>
+                每一关选择正确的HBN产品，对抗“肌底恶霸”！
+            </div>
+            <button class="start-btn" id="startBtn">🎮 开始科研之旅 🎮</button>
+            <p style="font-size: 0.7rem; margin-top: 18px;">✨ 产品：原白精华水乳 | 咖啡因眼霜 ✨<br>✅ 真功效 · 看得见 ✅</p>
+        </div>
+
+        <!-- 游戏主界面 (默认隐藏) -->
+        <div id="gameScreen" class="hidden">
+            <div class="stats-panel">
+                <div class="stat">
+                    <div class="stat-label">🧑‍🔬 科研精力值</div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill player" id="playerHpBar" style="width: 100%"></div></div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">👾 恶霸 意志值</div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill enemy" id="enemyHpBar" style="width: 100%"></div></div>
+                </div>
+            </div>
+            <div class="level-badge" id="levelLabel">第 1 / 5 关 · 初遇黑色素怪</div>
+            <div class="enemy-area">
+                <div class="monster-avatar" id="monsterEmoji">🦑💤</div>
+                <div class="monster-name" id="monsterName">暗沉黑化精灵</div>
+                <div class="monster-desc" id="monsterDesc">皮肤黑黄、顽固痘印... 需要根源抑黑！</div>
+            </div>
+
+            <div class="action-area">
+                <div class="action-title">⚡ 选择「功效武器」对抗恶霸 ⚡</div>
+                <div class="cards" id="skillCards">
+                    <!-- 动态生成按钮 -->
+                </div>
+                <div class="feedback" id="feedbackMsg">💡 点击产品，施展「真功效」绝技！</div>
+            </div>
+            <button class="restart-btn" id="resetGameBtn">🔄 重启科研之路</button>
+            <footer>✨ 每一次选择都是“慢科研”的见证 · HBN 让真功效名副其实 ✨</footer>
+        </div>
+
+        <!-- 通关结局界面 -->
+        <div id="endScreen" class="screen-overlay hidden">
+            <div class="title-big" id="endTitle">🏆 科研大师 🏆</div>
+            <div class="monster-avatar" style="font-size: 4rem;">🏅🧪💖</div>
+            <div id="endMessage" class="quote">你用「慢科研」的定力，彻底击败肌肤恶霸！<br>“看见”真实功效，HBN陪伴你的蜕变之旅。</div>
+            <button class="start-btn" id="replayEndBtn">🌟 重新开始 🌟</button>
+            <footer>HBN · 超50篇国际SCI论文 | 千人实测 真实改变</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 游戏数据结构 ----------
+    // 产品库 / 技能卡片 (用于关卡选项)
+    const PRODUCTS = {
+        ORIG_WHITE: {
+            name: "🌸 原白精华水乳",
+            short: "α-熊果苷+美白特证",
+            emoji: "🧴✨",
+            desc: "焕白提亮 | 抑黑率50.69% | 三甲医院实测"
+        },
+        COFFEE_EYE: {
+            name: "☕ 咖啡因眼霜",
+            short: "咖啡因+VK2+胶原肽",
+            emoji: "👁️⚡",
+            desc: "淡化黑眼圈·眼纹 | 12h焕亮+36%"
+        },
+        FAKE_1: {
+            name: "💧 普通保湿水",
+            short: "基础补水",
+            emoji: "💧",
+            desc: "无真实人体功效验证，治标不治本"
+        },
+        FAKE_2: {
+            name: "⚠️ 激进焕肤精华",
+            short: "刺激性猛药",
+            emoji: "⚠️🔥",
+            desc: "容易反黑，破坏屏障 (不推荐)"
+        }
+    };
+
+    // 关卡配置：每一关怪物信息，正确产品id (用于判定)
+    const LEVELS = [
+        {
+            name: "暗沉黑化精灵",
+            emoji: "🦑💢",
+            desc: "肤色暗黄、顽固痘印 & 色斑密布！需要精华级抑黑、源头阻断黑色素。",
+            hp: 80,
+            correctProductId: "ORIG_WHITE",
+            hint: "💡 HBN α-熊果苷光透焕白精萃水乳，SGS实测标杆美白力！",
+            themeMsg: "✨ 真实抑黑不反黑，96.9%用户认可美白淡斑真功效！"
+        },
+        {
+            name: "🐼 熊猫眼怪客",
+            emoji: "🐼💢👀",
+            desc: "青紫色+棕黑色眼圈混合，眼周松垮又显老！急需淡圈+紧致。",
+            hp: 85,
+            correctProductId: "COFFEE_EYE",
+            hint: "💡 HBN咖啡因眼霜，独家小粒咖啡发酵滤液，2周光泽+11%，KO四类黑眼圈！",
+            themeMsg: "🎯 即时焕亮+36.43%，动态纹-45.9%！眼部‘加浓冰美式’绝杀!"
+        },
+        {
+            name: "👵 皱纹时光虫",
+            emoji: "🐛🧓",
+            desc: "鱼尾纹、干纹细纹丛生，表情肌松弛！需要抗皱胜肽+胶原支撑。",
+            hp: 90,
+            correctProductId: "COFFEE_EYE",
+            hint: "💪 涂抹式'肉毒素'：两大抗皱胜肽 + 独家胶原肽，多皮层直充胶原+188%",
+            themeMsg: "🎉 即时眼周皱纹数量-45.90% 动态纹暴力测试通过！年轻紧致又回来啦~"
+        },
+        {
+            name: "🌋 顽固色斑巨怪",
+            emoji: "🧟‍♀️🔴",
+            desc: "陈年色斑、紫外线累积斑点，普通美白无效！需要高纯α-熊果苷+亮白组方。",
+            hp: 100,
+            correctProductId: "ORIG_WHITE",
+            hint: "🍃 经权威人体实测，抑黑率是光甘草定2.39倍！美白祛斑双特征认证",
+            themeMsg: "🌈 淡斑效果看得见，HBN独家TIMR94™pro豪华美白组分，斑斑溃败！"
+        },
+        {
+            name: "👾 终极·混合瑕疵统领",
+            emoji: "👾💀🌀",
+            desc: "暗沉+黑眼圈+细纹全垒打！单一阵容无法击败，必须「双效科研组合」！",
+            hp: 120,
+            correctProductId: "COMBO",   // 特殊组合关卡
+            hint: "✨ 原白精华水乳提亮淡斑 + 咖啡因眼霜紧致淡纹，双王炸组合！",
+            themeMsg: "🏆 HBN「全链路多维交叉验真体系」真实人体实测，一套攻破全脸难题！慢科研的力量！"
+        }
+    ];
+
+    let currentLevel = 0;          // 0索引
+    let playerHP = 100;            // 科研精力
+    let enemyCurrentHP = 0;
+    let gameActive = true;          // 游戏是否进行中(未通关/未结束)
+    let waitingTransition = false;  // 防止连点过渡
+    let currentMonster = null;
+
+    // DOM 元素
+    const startScreen = document.getElementById('startScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const endScreen = document.getElementById('endScreen');
+    const startBtn = document.getElementById('startBtn');
+    const resetGameBtn = document.getElementById('resetGameBtn');
+    const replayEndBtn = document.getElementById('replayEndBtn');
+    const playerHpBar = document.getElementById('playerHpBar');
+    const enemyHpBar = document.getElementById('enemyHpBar');
+    const levelLabel = document.getElementById('levelLabel');
+    const monsterEmoji = document.getElementById('monsterEmoji');
+    const monsterName = document.getElementById('monsterName');
+    const monsterDesc = document.getElementById('monsterDesc');
+    const feedbackDiv = document.getElementById('feedbackMsg');
+    const skillCardsDiv = document.getElementById('skillCards');
+    const endTitle = document.getElementById('endTitle');
+    const endMessage = document.getElementById('endMessage');
+
+    // 辅助函数：更新UI血量条
+    function updateBars() {
+        let playerPercent = Math.max(0, (playerHP / 100) * 100);
+        let enemyPercent = Math.max(0, (enemyCurrentHP / (currentMonster ? currentMonster.hp : 100)) * 100);
+        playerHpBar.style.width = `${playerPercent}%`;
+        enemyHpBar.style.width = `${enemyPercent}%`;
+        if(playerHP <= 0) playerHpBar.style.width = `0%`;
+        if(enemyCurrentHP <= 0) enemyHpBar.style.width = `0%`;
+    }
+
+    // 显示信息并震动反馈
+    function setFeedback(msg, isError = false) {
+        feedbackDiv.innerHTML = msg;
+        feedbackDiv.style.background = isError ? "#FFE0D0" : "#E6F7E6";
+        feedbackDiv.style.borderLeftColor = isError ? "#E76F51" : "#58B368";
+        setTimeout(() => {
+            if(feedbackDiv.innerHTML === msg) {
+                feedbackDiv.style.background = "#FFF2E3";
+                feedbackDiv.style.borderLeftColor = "#F7B05E";
+            }
+        }, 1600);
+    }
+
+    // 渲染当前关卡的选项卡片（根据怪物特性动态展示干扰与正确）
+    function renderOptions() {
+        const level = LEVELS[currentLevel];
+        let correctId = level.correctProductId;
+        let options = [];
+        if (correctId === "COMBO") {
+            // 特殊组合关卡: 添加组合武器 & 两个单一干扰
+            options = [
+                { id: "COMBO", name: "🌸☕ 原白+眼霜 科研组合拳", emoji: "💥✨", desc: "双链抑制黑色素+紧致淡纹，真实人体实测协同增效", productRef: "COMBO" },
+                { id: "ORIG_WHITE", name: PRODUCTS.ORIG_WHITE.name, emoji: PRODUCTS.ORIG_WHITE.emoji, desc: PRODUCTS.ORIG_WHITE.short, productRef: "ORIG_WHITE" },
+                { id: "COFFEE_EYE", name: PRODUCTS.COFFEE_EYE.name, emoji: PRODUCTS.COFFEE_EYE.emoji, desc: PRODUCTS.COFFEE_EYE.short, productRef: "COFFEE_EYE" },
+            ];
+        } else {
+            // 常规: 正确+两个干扰项
+            let correctProd = PRODUCTS[correctId];
+            let fake1 = PRODUCTS.FAKE_1;
+            let fake2 = PRODUCTS.FAKE_2;
+            options = [
+                { id: correctId, name: correctProd.name, emoji: correctProd.emoji, desc: correctProd.short, productRef: correctId },
+                { id: "FAKE_1", name: fake1.name, emoji: fake1.emoji, desc: fake1.short, productRef: "FAKE_1" },
+                { id: "FAKE_2", name: fake2.name, emoji: fake2.emoji, desc: fake2.short, productRef: "FAKE_2" },
+            ];
+            // 随机打乱顺序增加挑战
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+        }
+
+        skillCardsDiv.innerHTML = "";
+        options.forEach(opt => {
+            const card = document.createElement('div');
+            card.className = "skill-card";
+            card.innerHTML = `
+                <div class="skill-icon">${opt.emoji}</div>
+                <div class="skill-name">${opt.name}</div>
+                <div class="skill-effect">${opt.desc}</div>
+            `;
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!gameActive || waitingTransition || playerHP <= 0 || enemyCurrentHP <= 0) return;
+                handleAction(opt.id, opt.name);
+            });
+            skillCardsDiv.appendChild(card);
+        });
+    }
+
+    // 处理攻击与关卡逻辑
+    function handleAction(selectedId, selectedName) {
+        if (!gameActive) return;
+        const level = LEVELS[currentLevel];
+        let isCorrect = false;
+        if (level.correctProductId === "COMBO") {
+            isCorrect = (selectedId === "COMBO");
+        } else {
+            isCorrect = (selectedId === level.correctProductId);
+        }
+
+        let damage = 0;
+        let playerDamage = 0;
+        if (isCorrect) {
+            if (level.correctProductId === "COMBO") {
+                damage = 38;
+            } else {
+                damage = 32 + Math.floor(Math.random() * 12);
+            }
+            enemyCurrentHP = Math.max(0, enemyCurrentHP - damage);
+            setFeedback(`✨ 正确！${selectedName} 发挥真实功效！造成 ${damage} 点伤害！ ${level.themeMsg || ''}`, false);
+            if(level.correctProductId === "ORIG_WHITE" && selectedId === "ORIG_WHITE") {
+                setTimeout(() => setFeedback("🧪 α-熊果苷从根源抑制黑色素合成50.69% · 权威SGS人体实测"), 1500);
+            } else if(level.correctProductId === "COFFEE_EYE" && selectedId === "COFFEE_EYE") {
+                setTimeout(() => setFeedback("☕ 小粒咖啡发酵滤液+维生素K2，12h熬夜测试焕亮+36.43%"), 1500);
+            }
+        } else {
+            playerDamage = 20 + Math.floor(Math.random() * 15);
+            playerHP = Math.max(0, playerHP - playerDamage);
+            setFeedback(`😭 ${selectedName} 无效！恶霸疯狂反扑，损失 ${playerDamage} 科研精力！ ${level.hint}`, true);
+            updateBars();
+            if(playerHP <= 0) {
+                gameActive = false;
+                setFeedback("⚠️ 科研精力枯竭... 慢一点，重来更稳！点击重启继续挑战", true);
+                disableGameOver();
+                return;
+            }
+            updateBars();
+        }
+
+        if(isCorrect) updateBars();
+        // 怪物死亡 => 过关
+        if(enemyCurrentHP <= 0) {
+            setFeedback(`🎉 击败「${level.name}」！获得HBN真功效勋章！进入下一关~ 🎉`, false);
+            gameActive = false;
+            waitingTransition = true;
+            setTimeout(() => {
+                nextLevel();
+            }, 1800);
+            return;
+        }
+
+        if(playerHP <= 0) {
+            gameActive = false;
+            setFeedback("💔 科研经费耗尽... 需要慢下来重新审视配方，点击重启", true);
+            disableGameOver();
+            return;
+        }
+        updateBars();
+    }
+
+    function disableGameOver() {
+        gameActive = false;
+    }
+
+    // 加载当前关卡数值
+    function loadLevel(index) {
+        if(index >= LEVELS.length) {
+            completeGame(true);
+            return;
+        }
+        currentLevel = index;
+        currentMonster = LEVELS[currentLevel];
+        enemyCurrentHP = currentMonster.hp;
+        gameActive = true;
+        waitingTransition = false;
+        levelLabel.innerText = `第 ${currentLevel+1} / ${LEVELS.length} 关 · ${currentMonster.name}`;
+        monsterEmoji.innerText = currentMonster.emoji;
+        monsterName.innerText = currentMonster.name;
+        monsterDesc.innerText = currentMonster.desc;
+        updateBars();
+        renderOptions();
+        setFeedback(`🐣 新敌人出现！「${currentMonster.name}」 ${currentMonster.hint}`, false);
+    }
+
+    // 通关进入下一关或结局
+    function nextLevel() {
+        if(currentLevel + 1 < LEVELS.length) {
+            playerHP = Math.min(100, playerHP + 8);
+            if(playerHP > 100) playerHP = 100;
+            setFeedback(`🧴 科研毅力+8！进入下一关，继续保持「慢科研」严谨态度`, false);
+            loadLevel(currentLevel+1);
+        } else {
+            completeGame(false);
+        }
+    }
+
+    function completeGame(isVictory) {
+        gameScreen.classList.add('hidden');
+        endScreen.classList.remove('hidden');
+        if(!isVictory && currentLevel >= LEVELS.length) {
+            endTitle.innerHTML = "🏆 真功效·荣耀科研家 🏆";
+            endMessage.innerHTML = `🎉 恭喜完成所有关卡！🎉<br> 你深刻领悟了「慢一点，远一点」的真谛。<br> HBN用超50篇SCI论文、6000+人次实测，让每一分钱都花在有效成分上。<br> 「看见」肌底的真实改变，这就是慢科研的力量。✨`;
+        } else if(playerHP <= 0){
+            endTitle.innerHTML = "💔 科研中断 💔";
+            endMessage.innerHTML = `你因急于求成，选错成分导致实验失败...<br> 但没关系！「慢一点，方能走得更远」，重启游戏再试一次，<br> HBN陪你看见真实功效！`;
+        } else {
+            endTitle.innerHTML = "🌟 科研传承者 🌟";
+            endMessage.innerHTML = `你用专注与知识战胜了所有肌肤恶霸！<br> 记住 HBN 的品牌信念：让真功效名副其实，从慢科研走向经典。`;
+        }
+    }
+
+    function resetGame() {
+        playerHP = 100;
+        currentLevel = 0;
+        gameActive = true;
+        waitingTransition = false;
+        startScreen.classList.add('hidden');
+        endScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+        loadLevel(0);
+    }
+
+    function startGame() {
+        playerHP = 100;
+        currentLevel = 0;
+        gameActive = true;
+        waitingTransition = false;
+        startScreen.classList.add('hidden');
+        endScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+        loadLevel(0);
+    }
+
+    // 事件绑定
+    startBtn.addEventListener('click', startGame);
+    resetGameBtn.addEventListener('click', resetGame);
+    replayEndBtn.addEventListener('click', resetGame);
+</script>
+</body>
+</html>
